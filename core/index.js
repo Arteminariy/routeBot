@@ -6,14 +6,13 @@ dotenv.config();
 
 const bot = new Telegraf(process.env.TOKEN);
 
-// Создаем объект для хранения состояния каждого пользователя
 const userState = {};
 
 bot.command('start', async (ctx) => {
 	const buttons = Markup.inlineKeyboard([
 		Markup.button.callback('Маршрут 1', 'route1'),
 		Markup.button.callback('Маршрут 2', 'route2'),
-	]);
+	], { columns: 1 });
 	await ctx.reply('Добро пожаловать! Выберите маршрут:', buttons);
 });
 
@@ -21,9 +20,7 @@ bot.action('route1', async (ctx) => {
 	await ctx.reply(
 		'Вы выбрали маршрут 1\nНапишите "Подсказка" в чат, чтобы получить подсказку'
 	);
-	// Получаем идентификатор пользователя из контекста
 	const userId = ctx.from.id;
-	// Устанавливаем состояние пользователя
 	userState[userId] = {
 		route: 'route1',
 		hints: 0,
@@ -34,9 +31,7 @@ bot.action('route2', async (ctx) => {
 	await ctx.reply(
 		'Вы выбрали маршрут 2\nНапишите "Подсказка" в чат, чтобы получить подсказку'
 	);
-	// Получаем идентификатор пользователя из контекста
 	const userId = ctx.from.id;
-	// Устанавливаем состояние пользователя
 	userState[userId] = {
 		route: 'route2',
 		hints: 0,
@@ -46,11 +41,8 @@ bot.action('route2', async (ctx) => {
 const bunkerRegex = /бункер(-42| 42|)/i;
 const museumRegex = /музей( кулинарного искусства|)/i;
 
-// Проверяем состояние пользователя перед отправкой подсказки
 bot.hears('Подсказка', async (ctx) => {
-	// Получаем идентификатор пользователя из контекста
 	const userId = ctx.from.id;
-	// Получаем состояние пользователя из объекта
 	const user = userState[userId];
 	if (user) {
 		if (user.route === 'route1') {
@@ -60,7 +52,7 @@ bot.hears('Подсказка', async (ctx) => {
 					Markup.button.callback('Точка №5', 'point5'),
 					Markup.button.callback('Точка №7', 'point7'),
 					Markup.button.callback('Точка №10', 'point10'),
-				]);
+				], { columns: 1 });
 				await ctx.reply('Выберите точку:', buttons);
 				user.hints++;
 			} else {
@@ -73,7 +65,7 @@ bot.hears('Подсказка', async (ctx) => {
 					Markup.button.callback('Точка №6', 'point6'),
 					Markup.button.callback('Точка №7', 'point7'),
 					Markup.button.callback('Точка №10', 'point10'),
-				]);
+				], { columns: 1 });
 				await ctx.reply('Выберите точку:', buttons);
 				user.hints++;
 			} else {
@@ -87,7 +79,6 @@ bot.hears('Подсказка', async (ctx) => {
 	}
 });
 
-// Создаем обработчики действий на одном уровне
 bot.action('point4', async (ctx) => {
 	const userId = ctx.from.id;
 	const user = userState[userId];
@@ -144,7 +135,6 @@ bot.action('point10', async (ctx) => {
 	}
 });
 
-// Создаем обработчики сообщений на одном уровне
 bot.hears(bunkerRegex, async (ctx) => {
 	const userId = ctx.from.id;
 	const user = userState[userId];
